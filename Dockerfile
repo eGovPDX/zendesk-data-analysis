@@ -6,5 +6,3 @@ COPY ./scripts/install.R /app/scripts/
 RUN ["Rscript", "/app/scripts/install.R"]
 
 COPY ./scripts/ /app/scripts/
-
-WORKDIR /app/scripts/
