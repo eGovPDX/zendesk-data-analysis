@@ -11,7 +11,7 @@ on:
 jobs:
   run_script:
     runs-on: ubuntu-latest
-    container: ghcr.io/eGovPDX/zendesk-data-analysis/main
+    container: ghcr.io/egovpdx/zendesk-data-analysis/main
 
     steps:
       - name: Run script
