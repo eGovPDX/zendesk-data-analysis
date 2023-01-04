@@ -20,6 +20,9 @@ jobs:
           ZENDESK_API_EMAIL: ${{ secrets.ZENDESK_API_EMAIL }}
           ZENDESK_API_TOKEN: ${{ secrets.ZENDESK_API_TOKEN }}
         run: Rscript /app/scripts/graffiti-dashboard/graffiti-dashboard.R
+      - name: Set ownership
+        run: |
+          chown -R $(id -u):$(id -g) $PWD
       - uses: EndBug/add-and-commit@v9
         with:
           add: "data"
