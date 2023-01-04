@@ -1,0 +1,25 @@
+name: Graffiti Dashboard (build)
+
+on:
+  push:
+    branches:
+      - master
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        env:
+          CI_REGISTRY_IMAGE: docker.pkg.github.com/eGovPDX/zendesk-data-analysis/main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker login docker.pkg.github.com -u eGovPDX -p $GITHUB_TOKEN
+          docker build -t $CI_REGISTRY_IMAGE:$GITHUB_SHA .
+          docker push $CI_REGISTRY_IMAGE:$GITHUB_SHA
+          docker tag $CI_REGISTRY_IMAGE:$GITHUB_SHA $CI_REGISTRY_IMAGE:latest
+          docker push $CI_REGISTRY_IMAGE:latest

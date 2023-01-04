@@ -7,5 +7,4 @@ RUN ["Rscript", "/app/scripts/install.R"]
 
 COPY ./scripts/ /app/scripts/
 
-WORKDIR /data/
-ENTRYPOINT ["Rscript", "/app/scripts/graffiti-dashboard/graffiti-dashboard.R"]
+WORKDIR /app/scripts/

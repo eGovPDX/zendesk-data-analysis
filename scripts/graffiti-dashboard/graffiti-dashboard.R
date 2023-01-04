@@ -505,7 +505,7 @@ data_output$hate_gang <- ifelse(
 data_output$graffiti_contractors <- ifelse(
   data_output$graffiti_contractors=="",NA,data_output$graffiti_contractors)
 
-output_dir <- file.path(getwd(), "graffiti-dashboard")
+output_dir <- file.path("/data", "graffiti-dashboard")
 
 #write data output to csv
 dir.create(output_dir)
