@@ -25,5 +25,5 @@ jobs:
           chown -R $(id -u):$(id -g) $PWD
       - uses: EndBug/add-and-commit@v9
         with:
-          add: "data"
+          add: "data --force"
           default_author: github_actions
