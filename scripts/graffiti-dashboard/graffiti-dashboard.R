@@ -505,6 +505,26 @@ data_output$hate_gang <- ifelse(
 data_output$graffiti_contractors <- ifelse(
   data_output$graffiti_contractors=="",NA,data_output$graffiti_contractors)
 
+data_output <- data_output %>% select(
+  "address",
+  "graffiti_contractors",
+  "created_at",
+  "customfld_lat",
+  "customfld_lon",
+  "group_id",
+  "hate_gang",
+  "ticket_id",
+  "loc_details",
+  "loc_name",
+  "public_description",
+  "url",
+  "responsible_party",
+  "sqft_abated",
+  "graffiti_status_primary",
+  "graffiti_status_details",
+  "status"
+  )
+
 output_dir <- file.path(getwd(), "data")
 
 #write data output to csv
