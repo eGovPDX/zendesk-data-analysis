@@ -529,4 +529,4 @@ output_dir <- file.path(getwd(), "data")
 
 #write data output to csv
 dir.create(output_dir)
-write.csv(data_output, file.path(output_dir, "graffiti-dashboard.csv"))
+write.csv(data_output, file.path(output_dir, "graffiti-dashboard.csv"), row.names = FALSE)
