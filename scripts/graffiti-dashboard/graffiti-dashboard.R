@@ -334,7 +334,8 @@ apidata_clean <- apidata_clean %>% rename(
   "property_type"="9205221816983",
   "includedfor_kb"="1500007510961",
   "graffiti_status"="10074777716119",
-  "graffiti_contractors"="10249202452887"
+  "graffiti_contractors"="10249202452887",
+  "square_footage" = "10101859348375"
 )
 
 
