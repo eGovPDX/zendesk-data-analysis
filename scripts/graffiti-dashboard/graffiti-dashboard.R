@@ -523,7 +523,8 @@ data_output <- data_output %>% select(
   "sqft_abated",
   "graffiti_status_primary",
   "graffiti_status_details",
-  "status"
+  "status",
+ "square_footage"
   )
 
 output_dir <- file.path(getwd(), "data")
