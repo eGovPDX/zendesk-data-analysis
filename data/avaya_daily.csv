@@ -1,7 +1,0 @@
-﻿row,date,avg_speed_ans,avg_aban_time,ACD_calls,avg_talk_time,avg_after_call,aban_calls,max_delay,flow_in,flow_out,extn_out_calls,avg_talk_time_out,dqd_calls,Avg_queue_time,perc_acd_time,perc_ans,rona,perc_in_sl,Skill
-1,8/2/2021,13.52666664,12.83333302,450,98.35111237,15.14666653,24,159,13,13,325,9.107692719,0,,56.51,92.4,13,91.99,I_R English 31
-2,8/2/2021,8,,1,64,0,0,8,0,0,1,0,0,,0.07,100,0,100,I_R Spanish 32
-3,8/2/2021,12.25,7,4,68,0,1,19,0,0,2,1,0,,0.11,80,0,0,ONI
-4,8/2/2021,8.199999809,,5,294.2000122,0,0,13,0,0,1,1,0,,0.59,100,0,0,Noise Control
-5,8/2/2021,10.5,,12,162.0833282,33.25,0,16,0,0,3,0.666666687,0,,0.94,100,0,0,PKS Washington 311
-6,8/2/2021,10.66666698,17,9,216.6666718,0,2,22,0,0,5,6,0,,0.92,81.82,0,0,PBOT Safe
