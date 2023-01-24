@@ -5,4 +5,4 @@ This repository contains the scripts that perform data processing/analysis on th
 The data is currently used by the PDX 311 Customer Service Program to provide internal dashboards and metrics on issue resolution.
 
 ## Note
-Files within the `data` folder contain user-generated data (e.g. descriptions of graffiti), and therefore may contain offensive language.
+Files within the `data` folder contain user-provided informatoin (e.g., descriptions of graffiti), and therefore may contain offensive language.
