@@ -10,8 +10,9 @@ library(jsonlite)
 
 ### Graffiti API Request#####
 ##api authentication and base
- token <- Sys.getenv("ZENDESK_API_TOKEN")
- email <- Sys.getenv("ZENDESK_API_EMAIL")
+token <- Sys.getenv("ZENDESK_API_TOKEN")
+email <- Sys.getenv("ZENDESK_API_EMAIL")
+
 
 #base url and query parameters
 base_url <- "https://portlandoregon.zendesk.com/api/v2/search/export.json?"
@@ -56,7 +57,7 @@ list1 <- apidata %>% unnest_longer(
   col=custom_fields,
   values_to='values_list',
   indices_to='id_list',
-  )
+)
 
 
 list1_clean <- unnest(list1,cols=values_list,values_to='values_cust')
@@ -348,10 +349,10 @@ apidata_search <- apidata_clean
 
 ## CALL METRICS EVENTS API. ##
 #I really want the metrics API but it does not include archived tickets.##
-base_url <- "https://portlandoregon.zendesk.com/api/v2/incremental/ticket_metric_events.json?"
+base_url <- "https://portlandoregon.zendesk.com/api/v2/ticket_metrics.json?"
 
 #set start time to beginning of 2020
-query <- "start_time=1577836800"
+query <- "start_time=1668499200"
 
 # Concatenate query parameters to build request URL
 request_url <- paste0(base_url,query)
@@ -365,25 +366,23 @@ api_response <- fromJSON(raw_content,flatten=TRUE)
 
 #initialize the URL for next page and set end_of_stream, a logical field that we'll use for our while loop
 next_url <- api_response$next_page
-end_stream <- api_response$end_of_stream
 
 # Initialize field to hold all JSON objects in the API call
-apidata_metric_events <- api_response$ticket_metric_events
+apidata_metrics <- api_response$ticket_metrics
 
 # Loop through API call and union JSON objects together
-while(end_stream==FALSE) {
+while(!is.null(next_url)) {
   call <- GET(next_url,
               authenticate(email,token,type="basic"))
   raw_content <- rawToChar(call$content)
   api_response <- fromJSON(raw_content,flatten=TRUE)
   next_url <- api_response$next_page
-  end_stream <- api_response$end_of_stream
-  temp <- api_response$ticket_metric_events
-  apidata_metric_events <- bind_rows(apidata_metric_events,temp)
+  temp <- api_response$ticket_metrics
+  apidata_metrics <- bind_rows(apidata_metrics,temp)
 }
 
 #Filter metrics events data to only show ticket solved events
-apidata_solved <- apidata_metric_events[apidata_metric_events$metric == 'resolution_time', ]
+apidata_solved <- apidata_metrics[apidata_metrics$metric == 'resolution_time', ]
 apidata_solved <- apidata_solved[apidata_solved$type == 'update_status', ]
 
 #only show most recent ticket solved events
@@ -414,9 +413,9 @@ data_output$graffiti_status_primary <- ifelse(
   grepl("open",data_output$graffiti_status,fixed=TRUE),"Open",ifelse(
     grepl("pending",data_output$graffiti_status,fixed=TRUE),"Pending",ifelse(
       grepl("solved",data_output$graffiti_status,fixed=TRUE),"Solved",data_output$status
-        )
-      )
     )
+  )
+)
 
 #convert Zendesk statuses to either open, pending, or solved (this is not the most efficient way to handle this, but works for now)
 data_output$graffiti_status_primary <- ifelse(
@@ -447,16 +446,12 @@ data_output$graffiti_status_details <- ifelse(
                       grepl("1st_abatement",data_output$graffiti_status,fixed=TRUE),"1st abatement letter sent",ifelse(
                         grepl("2nd_abatement",data_output$graffiti_status,fixed=TRUE),"2nd abatement letter sent",ifelse(
                           grepl("cleaned_by_contractor",data_output$graffiti_status,fixed=TRUE),"Cleaned by contractor",ifelse(
-                              grepl("cleaned_by_property_owner",data_output$graffiti_status,fixed=TRUE),"Cleaned by property owner",ifelse(
-                                grepl("lack_of_response",data_output$graffiti_status,fixed=TRUE),"Lack of response",ifelse(
-                                  grepl("referred_to_tri-met",data_output$graffiti_status,fixed=TRUE),"Referred to Tri-Met",ifelse(
-                                    grepl("contractor_resolution",data_output$graffiti_status,fixed=TRUE),"Contractor resolution",ifelse(
-                                      grepl("ssl_asset_referred_to_contractor",data_output$graffiti_status,fixed=TRUE),"SSL asset referred to contractor",ifelse(
-                                        grepl("referred_to_odot",data_output$graffiti_status,fixed=TRUE),"Referred to ODOT",NA
-                                            )
-                                          )
-                                        )
-                                      )
+                            grepl("cleaned_by_property_owner",data_output$graffiti_status,fixed=TRUE),"Cleaned by property owner",ifelse(
+                              grepl("lack_of_response",data_output$graffiti_status,fixed=TRUE),"Lack of response",ifelse(
+                                grepl("referred_to_tri-met",data_output$graffiti_status,fixed=TRUE),"Referred to Tri-Met",ifelse(
+                                  grepl("contractor_resolution",data_output$graffiti_status,fixed=TRUE),"Contractor resolution",ifelse(
+                                    grepl("ssl_asset_referred_to_contractor",data_output$graffiti_status,fixed=TRUE),"SSL asset referred to contractor",ifelse(
+                                      grepl("referred_to_odot",data_output$graffiti_status,fixed=TRUE),"Referred to ODOT",NA
                                     )
                                   )
                                 )
@@ -472,6 +467,10 @@ data_output$graffiti_status_details <- ifelse(
             )
           )
         )
+      )
+    )
+  )
+)
 
 
 #Specify responsible party
@@ -485,7 +484,7 @@ data_output$responsible_party <- ifelse(
               grepl("Tri-Met",data_output$graffiti_status_details,fixed=TRUE),"Tri-Met",ifelse(
                 grepl("ODOT",data_output$graffiti_status_details,fixed=TRUE),"ODOT",ifelse(
                   grepl("property owner",data_output$graffiti_status_details,fixed=TRUE),"Property Owner","Contractor"
-
+                  
                 )
               )
             )
@@ -506,10 +505,12 @@ data_output$hate_gang <- ifelse(
 data_output$graffiti_contractors <- ifelse(
   data_output$graffiti_contractors=="",NA,data_output$graffiti_contractors)
 
-data_output <- data_output %>% select(
+data_export <- left_join(apidata_metrics,data_output, by = "ticket_id")
+
+data_export <- data_export %>% select(
   "address",
   "graffiti_contractors",
-  "created_at",
+  "created_at.x",
   "customfld_lat",
   "customfld_lon",
   "group_id",
@@ -518,17 +519,19 @@ data_output <- data_output %>% select(
   "loc_details",
   "loc_name",
   "public_description",
-  "url",
+  "url.x",
   "responsible_party",
   "sqft_abated",
   "graffiti_status_primary",
   "graffiti_status_details",
   "status",
- "square_footage"
-  )
+  "square_footage",
+  "solved_at"
+)
+
 
 output_dir <- file.path(getwd(), "data")
 
 #write data output to csv
 dir.create(output_dir)
-write.csv(data_output, file.path(output_dir, "graffiti-dashboard.csv"), row.names = FALSE)
+write.csv(data_export, file.path(output_dir, "graffiti-dashboard.csv"), row.names = FALSE)
