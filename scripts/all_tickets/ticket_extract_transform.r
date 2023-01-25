@@ -13,10 +13,12 @@ library(data.table)
 token <- Sys.getenv("ZENDESK_API_TOKEN")
 email <- Sys.getenv("ZENDESK_API_EMAIL")
 
+domain <- "https://portlandoregon.zendesk.com/api/v2/"
 
 ####===== Pull Zendesk Article Metadata =====#####
-#api authentication and base
-base_url <- "https://portlandoregon.zendesk.com/api/v2/help_center/articles.json?"
+#set request URL
+path <- "help_center/articles"
+request_url <- paste0(domain,path)
 
 # Call Zendesk Articles API to pull metadata on each article
 i <- 1
@@ -24,7 +26,7 @@ apidata <- list()
 next_url <- ""
 
 while(!is.null(next_url)) {
-call <- GET(paste0(base_url,"page=",i), #,"?include=categories" 
+call <- GET(paste0(request_url,"page=",i),
             authenticate(email,token,type="basic"))
 raw_content <- rawToChar(call$content)
 api_response <- fromJSON(raw_content,flatten=TRUE)
@@ -43,7 +45,6 @@ remove(
   , api_response
   , apidata
   , temp
-  , base_url
   , i
   , next_url
   , temp
@@ -52,16 +53,14 @@ remove(
 
 gc(reset = TRUE)
 
-#write to csv
-write.csv(metadata, paste0(directory,"/article_metadata.csv"))
-
 
 
 #####===== Get Zendesk Groups data =====#####
-base_url <- "https://portlandoregon.zendesk.com/api/v2/groups"
+path <- "groups"
+request_url <- paste0(domain,path)
 
 #Initial API call
-call <- GET(URLencode(base_url), 
+call <- GET(URLencode(request_url), 
             authenticate(email,token,type="basic"))
 raw_content <- rawToChar(call$content)
 api_response <- fromJSON(raw_content,flatten=TRUE)
@@ -72,18 +71,18 @@ remove(
   call
   , api_response
   , raw_content
-  , base_url
 )
 
 gc(reset = TRUE)
 
 
 
-#####===== Get Zendesk Groups data =====#####
-base_url <- "https://portlandoregon.zendesk.com/api/v2/ticket_forms"
+#####===== Get Zendesk Ticket Forms data =====#####
+path <- "ticket_forms"
+request_url <- paste0(domain,path)
 
 #Initial API call
-call <- GET(URLencode(base_url), 
+call <- GET(URLencode(request_url), 
             authenticate(email,token,type="basic"))
 raw_content <- rawToChar(call$content)
 api_response <- fromJSON(raw_content,flatten=TRUE)
@@ -94,32 +93,9 @@ remove(
   call
   , api_response
   , raw_content
-  , base_url
 )
 
 gc(reset = TRUE)
-
-
-
-####===== Get Zendesk Article Labels data =====#####
-base_url <- "https://portlandoregon.zendesk.com/api/v2/help_center/articles/labels.json"
-call <- GET(paste0(base_url), 
-            authenticate(email,token,type="basic"))
-raw_content <- rawToChar(call$content)
-api_response <- fromJSON(raw_content,flatten=TRUE)
-labels <- api_response$labels
-
-#write to csv
-write.csv(labels, paste0(directory,"/article_labels.csv"))
-
-#remove unused dataframes and fields. Clean unused data
-remove(
-  call
-  , api_response
-  , raw_content
-  , base_url
-)
-
 
 
 ####===== Get Zendesk Article Categories data =====#####
