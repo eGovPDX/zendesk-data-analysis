@@ -1,4 +1,4 @@
-name: Graffiti Dashboard (build)
+name: Build
 
 on:
   push:
